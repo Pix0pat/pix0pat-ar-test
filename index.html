@@ -1,76 +1,124 @@
-
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="importmap">
-    {
-      "imports": {
-	"three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-	"three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-	"mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
-      }
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
     }
-    </script>
-    <script type="module">
-      import * as THREE from 'three';
-      import { MindARThree } from 'mindar-image-three';
-		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+  }
+  </script>
+
+  <script type="module">
+
+    import * as THREE from 'three';
+    import { MindARThree } from 'mindar-image-three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const start = async() => {
+
       const mindarThree = new MindARThree({
-	container: document.querySelector("#container"),
-	imageTargetSrc: "./PLB_Target_V03.mind"
+        container: document.querySelector("#container"),
+        imageTargetSrc: "./PLB_Target_V03.mind"
       });
-      const {renderer, scene, camera} = mindarThree;
-		const loader = new GLTFLoader();
 
-loader.load('./models/cubev01.glb', (gltf) => {
+      const { renderer, scene, camera } = mindarThree;
 
-  const model = gltf.scene;
+      const anchor = mindarThree.addAnchor(0);
 
-  model.scale.set(0.2,0.2,0.2);
+      const light = new THREE.HemisphereLight(
+        0xffffff,
+        0xbbbbff,
+        1
+      );
 
-  anchor.group.add(model);
+      scene.add(light);
 
-});
+      const loader = new GLTFLoader();
 
-      const start = async() => {
-	await mindarThree.start();
-	renderer.setAnimationLoop(() => {
-	  renderer.render(scene, camera);
-	});
-      }
-      const startButton = document.querySelector("#startButton");
-      startButton.addEventListener("click", () => {
-	start();
+      loader.load(
+        './models/cubev01.glb',
+
+        (gltf) => {
+
+          const model = gltf.scene;
+
+          model.scale.set(
+            0.2,
+            0.2,
+            0.2
+          );
+
+          anchor.group.add(model);
+
+          console.log("GLB chargé");
+
+        },
+
+        undefined,
+
+        (error) => {
+
+          console.error("Erreur GLB :", error);
+
+        }
+      );
+
+      await mindarThree.start();
+
+      renderer.setAnimationLoop(() => {
+
+        renderer.render(scene, camera);
+
       });
-      stopButton.addEventListener("click", () => {
-	mindarThree.stop();
-	mindarThree.renderer.setAnimationLoop(null);
+
+    };
+
+    document
+      .querySelector("#startButton")
+      .addEventListener("click", () => {
+
+        start();
+
       });
-    </script>
-    <style>
-      body {
-	margin: 0;
-      }
-      #container {
-	width: 100vw;
-	height: 100vh;
-	position: relative;
-	overflow: hidden;
-      }
-      #control {
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 2;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="control">
-      <button id="startButton">Start</button>
-      <button id="stopButton">Stop</button>
-    </div>
-    <div id="container">
-    </div>
-  </body>
+
+  </script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #control {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 999;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div id="control">
+    <button id="startButton">Start</button>
+  </div>
+
+  <div id="container"></div>
+
+</body>
 </html>
