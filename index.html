@@ -14,16 +14,24 @@
     <script type="module">
       import * as THREE from 'three';
       import { MindARThree } from 'mindar-image-three';
+		import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       const mindarThree = new MindARThree({
 	container: document.querySelector("#container"),
 	imageTargetSrc: "./PLB_Target_V03.mind"
       });
       const {renderer, scene, camera} = mindarThree;
-      const anchor = mindarThree.addAnchor(0);
-      const geometry = new THREE.PlaneGeometry(1, 0.55);
-      const material = new THREE.MeshBasicMaterial( {color: 0x00ffff, transparent: true, opacity: 0.5} );
-      const plane = new THREE.Mesh( geometry, material );
-      anchor.group.add(plane);
+		const loader = new GLTFLoader();
+
+loader.load('./models/cubev01.glb', (gltf) => {
+
+  const model = gltf.scene;
+
+  model.scale.set(0.2,0.2,0.2);
+
+  anchor.group.add(model);
+
+});
+
       const start = async() => {
 	await mindarThree.start();
 	renderer.setAnimationLoop(() => {
